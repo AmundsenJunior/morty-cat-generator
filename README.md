@@ -2,8 +2,8 @@
 *coding challenge - web service that pulls names and jokes from other services and responds to user requests with a custom joke*
 
 ## API docs:
-https://uinames.com/
-http://www.icndb.com/api/
+* https://uinames.com/
+* http://www.icndb.com/api/
 
 ## service concepts needed:
 * mux routing to handle load of requests
