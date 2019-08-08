@@ -25,7 +25,7 @@ func init() {
 			Host: "api.icndb.com",
 			Port: 80,
 			Path: "jokes/random",
-			Query: "?firstName=John&lastName=Doe&limitTo=[nerdy]",
+			Query: "firstName=John&lastName=Doe&limitTo=[nerdy]",
 		},
 	}
 }

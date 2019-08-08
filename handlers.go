@@ -2,6 +2,7 @@ package main
 
 import "net/http"
 
+// TODO: unhandled error on w.Write call
 func (a *App) GetJoke(w http.ResponseWriter, r *http.Request) {
 	joke, err := CreateJoke()
 	if err != nil {

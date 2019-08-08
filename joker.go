@@ -25,11 +25,13 @@ type Inputs struct {
 	JokeURL URL
 }
 
+// type to unmarshal name response json
 type NameResponse struct {
 	First string `json:"name"`
 	Last string `json:"surname"`
 }
 
+// type to unmarshal joke response json
 type JokeResponse struct {
 	Status string `json:"type"`
 	Value struct {
@@ -37,7 +39,8 @@ type JokeResponse struct {
 	}
 }
 
-// TODO: fix u.Query to not need ? included in URL instantiation in main.go
+// take input of the components of each dependent service's url
+//TODO: add input validation here of url configuration values
 func (u *URL) SetURL(scheme, host string, port int, path, query string) {
 	u.Scheme = scheme
 	u.Host = host
@@ -46,10 +49,13 @@ func (u *URL) SetURL(scheme, host string, port int, path, query string) {
 	u.Query = query
 }
 
+// return the formatted string of a URL
 func (u *URL) GetURL() string {
-	return fmt.Sprintf("%s://%s:%d/%s%s", u.Scheme, u.Host, u.Port, u.Path, u.Query)
+	return fmt.Sprintf("%s://%s:%d/%s?%s", u.Scheme, u.Host, u.Port, u.Path, u.Query)
 }
 
+// make a generic GET request for the URL and return raw []byte response body
+//TODO: IDE reports an unhandled error on the defer statement
 func (u *URL) RequestInput() ([]byte, error) {
 	response, err := http.Get(u.GetURL())
 	if err != nil {
@@ -67,6 +73,7 @@ func (u *URL) RequestInput() ([]byte, error) {
 	return body, nil
 }
 
+// make a request to the Name URL and unmarshal the response body
 func (n *NameResponse) GetNameResponse(u *URL) error {
 	body, err := u.RequestInput()
 	if err != nil {
@@ -82,6 +89,7 @@ func (n *NameResponse) GetNameResponse(u *URL) error {
 	return nil
 }
 
+// make a request to the Joke URL and unmarshal the response body
 func (j *JokeResponse) GetJokeResponse(u *URL) error {
 	body, err := u.RequestInput()
 	if err != nil {
@@ -97,8 +105,17 @@ func (j *JokeResponse) GetJokeResponse(u *URL) error {
 	return nil
 }
 
-//TODO: Replace the direct John Doe joke query and replace with a second call from the results of the Name API call.
-// Not sure how to provide the URL.Query field as a parameter that takes inputs. Perhaps using strings.Replace in reverse.
+// Invoked by the GetJoke handler, this function coordinates the calls to the
+//   dependent name and joke services, then combines the names with the joke and
+//   returns the modified joke string.
+// TODO: Replace the direct John Doe joke query and replace with a second call
+//   from the results of the Name API call. Not sure how to provide the URL.Query
+//   field as a parameter that takes inputs. Perhaps using strings.Replace in reverse.
+//   Evaluate before doing with Benchmark tests on performance difference, as the
+//   WaitGroup would have to be removed.
+// TODO: Provide better error handling in the go funcs than panicking.
+// TODO: Move the strings.Replace block to its own function for expanded joke
+//   formatting, and seek more idiomatic means to replacing the &quot; strings.
 func CreateJoke() (string, error) {
 	var nr NameResponse
 	var jr JokeResponse
