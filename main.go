@@ -14,18 +14,18 @@ func init() {
 	//TODO: make these values configurable via YAML file
 	inputs = Inputs{
 		NameURL: URL{
-			Scheme: "http",
-			Host: "localhost",
-			Port: 80,
-			Path: "uinames/api/",
-			Query: "",
+			Scheme: "https",
+			Host:   "uinames.com",
+			Port:   443,
+			Path:   "api/",
+			Query:  "",
 		},
-		JokeURL: URL{
-			Scheme: "http",
-			Host: "api.icndb.com",
-			Port: 80,
-			Path: "jokes/random",
-			Query: "firstName=John&lastName=Doe&limitTo=[nerdy]",
+		FactURL: URL{
+			Scheme: "https",
+			Host:   "cat-fact.herokuapp.com",
+			Port:   443,
+			Path:   "facts/random",
+			Query:  "",
 		},
 	}
 }

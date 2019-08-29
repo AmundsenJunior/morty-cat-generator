@@ -1,4 +1,4 @@
-module github.com/amundsenjunior/joke-name-generator
+module github.com/amundsenjunior/morty-cat-generator
 
 go 1.12
 

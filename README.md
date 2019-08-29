@@ -11,7 +11,6 @@ and responds to user requests with a custom picture-accompanied fact*
 * benchmark tests of service loading
 * error handling of different http codes
 * unmarshalling json responses
-* handling unicode/utf-8 characters from uinames
 * using go modules to manage project dependencies
 * Add a health endpoint of 200 status with json returned of app up and
   access to apis status (red, yellow, green)
@@ -22,5 +21,5 @@ and responds to user requests with a custom picture-accompanied fact*
   should exist outside `$GOPATH`). Or, if not using modules:
     1. `go get github.com/gorilla/mux`
     1. `go get github.com/pkg/errors`
-1. Build and run the service: `go build; ./joke-name-generator`
+1. Build and run the service: `go build; ./morty-cat-generator`
 1. Call the service to receive joke responses: `curl localhost:8080/`

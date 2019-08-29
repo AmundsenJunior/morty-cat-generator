@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
-	"github.com/pkg/errors"
 	"strings"
 	"sync"
 )
@@ -13,30 +13,27 @@ import (
 // type to hold any url connection info
 type URL struct {
 	Scheme string
-	Host string
-	Port int
-	Path string
-	Query string
+	Host   string
+	Port   int
+	Path   string
+	Query  string
 }
 
 // type to hold the app input APIs
 type Inputs struct {
 	NameURL URL
-	JokeURL URL
+	FactURL URL
 }
 
 // type to unmarshal name response json
 type NameResponse struct {
 	First string `json:"name"`
-	Last string `json:"surname"`
+	Last  string `json:"surname"`
 }
 
 // type to unmarshal joke response json
-type JokeResponse struct {
-	Status string `json:"type"`
-	Value struct {
-		Joke string `json:"joke"`
-	}
+type FactResponse struct {
+	Fact string `json:"text"`
 }
 
 // take input of the components of each dependent service's url
@@ -74,13 +71,13 @@ func (u *URL) RequestInput() ([]byte, error) {
 }
 
 // make a request to the Name URL and unmarshal the response body
-func (n *NameResponse) GetNameResponse(u *URL) error {
+func GetResponse(u *URL, r interface{}) error {
 	body, err := u.RequestInput()
 	if err != nil {
 		return err
 	}
 
-	if err = json.Unmarshal(body, &n); err != nil {
+	if err = json.Unmarshal(body, &r); err != nil {
 		msg := fmt.Sprintf("Unable to unmarshal name response JSON from %s. Error: %e", u.Host, err)
 		logger.Print(msg)
 		return errors.New(msg)
@@ -89,36 +86,34 @@ func (n *NameResponse) GetNameResponse(u *URL) error {
 	return nil
 }
 
-// make a request to the Joke URL and unmarshal the response body
-func (j *JokeResponse) GetJokeResponse(u *URL) error {
-	body, err := u.RequestInput()
+// make a request to the Name URL and unmarshal the response body
+func (n *NameResponse) GetNameResponse(u *URL) error {
+	err := GetResponse(u, n)
 	if err != nil {
 		return err
-	}
-
-	if err = json.Unmarshal(body, &j); err != nil {
-		msg := fmt.Sprintf("Unable to unmarshal joke response JSON from %s. Error: %e", u.Host, err)
-		logger.Print(msg)
-		return errors.New(msg)
 	}
 
 	return nil
 }
 
-// Invoked by the GetJoke handler, this function coordinates the calls to the
-//   dependent name and joke services, then combines the names with the joke and
-//   returns the modified joke string.
-// TODO: Replace the direct John Doe joke query and replace with a second call
-//   from the results of the Name API call. Not sure how to provide the URL.Query
-//   field as a parameter that takes inputs. Perhaps using strings.Replace in reverse.
-//   Evaluate before doing with Benchmark tests on performance difference, as the
-//   WaitGroup would have to be removed.
+// make a request to the Fact URL and unmarshal the response body
+func (f *FactResponse) GetFactResponse(u *URL) error {
+	err := GetResponse(u, f)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Invoked by the GetFact handler, this function coordinates the calls to the
+//   dependent name and fact services, then combines the names with the fact and
+//   returns the modified fact string.
 // TODO: Provide better error handling in the go funcs than panicking.
-// TODO: Move the strings.Replace block to its own function for expanded joke
-//   formatting, and seek more idiomatic means to replacing the &quot; strings.
-func CreateJoke() (string, error) {
+// TODO: Move the strings.Replace block to its own function for expanded fact formatting.
+func CreateFact() (string, error) {
 	var nr NameResponse
-	var jr JokeResponse
+	var fr FactResponse
 
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -130,18 +125,20 @@ func CreateJoke() (string, error) {
 	}()
 	wg.Add(1)
 	go func() {
-		if err := jr.GetJokeResponse(&inputs.JokeURL); err != nil {
+		if err := fr.GetFactResponse(&inputs.FactURL); err != nil {
 			logger.Panic(err)
 		}
 		wg.Done()
 	}()
 	wg.Wait()
 
-	var joke string
-	joke = jr.Value.Joke
-	joke = strings.Replace(joke, "John", nr.First, -1)
-	joke = strings.Replace(joke, "Doe", nr.Last, -1)
-	joke = strings.Replace(joke, "&quot;", "\"", -1)
+	var fact string
+	fact = fr.Fact
+	fact = strings.Replace(fact, "cat ", fmt.Sprintf("%s ", nr.First), -1)
+	fact = strings.Replace(fact, "cat.", fmt.Sprintf("%s.", nr.First), -1)
+	fact = strings.Replace(fact, "cat's", fmt.Sprintf("%s's", nr.First), -1)
+	fact = strings.Replace(fact, "cats", fmt.Sprintf("%ss", nr.Last), -1)
+	fact = strings.Replace(fact, "Cats", fmt.Sprintf("%s %ss", nr.First, nr.Last), -1)
 
-	return joke, nil
+	return fact, nil
 }
