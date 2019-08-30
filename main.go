@@ -5,22 +5,16 @@ import (
 	"os"
 )
 
+var a App
 var logger *log.Logger
-var inputs Inputs
+var catfactsapi CatFactsAPI
+var rickandmortyapi RickAndMortyAPI
 
 func init() {
 	logger = log.New(os.Stdout, "", log.LstdFlags)
 
-	//TODO: make these values configurable via YAML file
-	inputs = Inputs{
-		NameURL: URL{
-			Scheme: "https",
-			Host:   "uinames.com",
-			Port:   443,
-			Path:   "api/",
-			Query:  "",
-		},
-		FactURL: URL{
+	catfactsapi = CatFactsAPI{
+		Url: URL{
 			Scheme: "https",
 			Host:   "cat-fact.herokuapp.com",
 			Port:   443,
@@ -28,12 +22,26 @@ func init() {
 			Query:  "",
 		},
 	}
+
+	// This configuration is only used to make the custom call to get the count of all characters. Otherwise, all
+	// interactions with the Rick and Morty API are done via the API Go wrapper package.
+	rickandmortyapi = RickAndMortyAPI{
+		Url: URL{
+			Scheme: "https",
+			Host: "rickandmortyapi.com",
+			Port: 443,
+			Path: "api/character/",
+			Query: "",
+		},
+	}
+
+	rickandmortyapi.GetNumberOfMortyNames(100)
+
+	a = App{}
+	a.Initialize()
+
 }
 
 func main() {
-	a := App{}
-
-	a.Initialize()
-
-	a.Run(":8080")
+	a.Run(":8000")
 }

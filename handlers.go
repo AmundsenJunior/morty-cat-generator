@@ -3,8 +3,8 @@ package main
 import "net/http"
 
 // TODO: unhandled error on w.Write call
-func (a *App) GetFact(w http.ResponseWriter, r *http.Request) {
-	fact, err := CreateFact()
+func (a *App) GetMortyFact(w http.ResponseWriter, r *http.Request) {
+	fact, err := CreateMortyFact()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	} else {

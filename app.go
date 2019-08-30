@@ -18,7 +18,7 @@ func (a *App) Initialize() {
 
 // initialize routes into the mux router
 func (a *App) InitializeRoutes() {
-	a.Router.HandleFunc("/", a.GetFact).Methods("GET")
+	a.Router.HandleFunc("/", a.GetMortyFact).Methods("GET")
 	a.Router.HandleFunc("/health", a.GetHealthStatus).Methods("GET")
 }
 
